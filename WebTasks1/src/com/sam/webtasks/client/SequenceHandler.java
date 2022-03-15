@@ -58,7 +58,7 @@ public class SequenceHandler {
 	public static void Next() {	
 		// move forward one step in whichever loop we are now in
 		sequencePosition.set(whichLoop, sequencePosition.get(whichLoop) + 1);
-
+		
 		switch (whichLoop) {
 		case 0: // MAIN LOOP
 			switch (sequencePosition.get(0)) {
@@ -66,13 +66,96 @@ public class SequenceHandler {
 			 * The code here defines the main sequence of events in the experiment *
 			 **********************************************************************/
 			case 1:
-				ClickPage.Run(Instructions.Get(0), "Next");
+				ClickPage.Run("Here are some initial instructions", "Next");
 				break;
 			case 2:
-				Finish.Run();
+				if (Counterbalance.getFactorLevel("WhichEffortConditionFirst")==ExtraNames.HIGH_EFFORT_FIRST) {
+					ClickPage.Run("Instructions for high effort reminders", "Next");
+				} else if (Counterbalance.getFactorLevel("WhichEffortConditionFirst")==ExtraNames.LOW_EFFORT_FIRST) {
+					ClickPage.Run("Instructions for low effort reminders",  "Next");
+				}
+				break;
+			case 3:
+				ClickPage.Run("Now the experiment will start for real", "Next");
+				break;
+			case 4:
+				//now run the first subloop (reminder or no-reminder)
+				if (Counterbalance.getFactorLevel("WhichReminderConditionFirst")==ExtraNames.NO_REMINDER_FIRST) {
+					SequenceHandler.SetLoop(4, true);
+					SequenceHandler.Next();
+				} else if (Counterbalance.getFactorLevel("WhichReminderConditionFirst")==ExtraNames.REMINDER_FIRST) {
+					SequenceHandler.SetLoop(5, true);
+					SequenceHandler.Next();
+				}
+				break;
+			case 5:
+				//now run the second subloop, whichever one we did not run before
+				if (Counterbalance.getFactorLevel("WhichReminderConditionFirst")==ExtraNames.NO_REMINDER_FIRST) {
+					SequenceHandler.SetLoop(5, true);
+					SequenceHandler.Next();
+				} else if (Counterbalance.getFactorLevel("WhichReminderConditionFirst")==ExtraNames.REMINDER_FIRST) {
+					SequenceHandler.SetLoop(4, true);
+					SequenceHandler.Next();
+				}
+				break;
+			case 6:
+				ClickPage.Run("You have now reached the end of the experiment", "The end");
 				break;
 			}
 			break;
+		
+		//here we specify the no-reminder subloop
+		case 4:
+			switch (sequencePosition.get(4)) {
+			case 1:
+				ClickPage.Run("For this part of the experiment you cannot set reminders", "Next");
+				break;
+			case 2:
+				ClickPage.Run("We are doing the task without reminders",  "Next");
+				break;
+			case 3:
+				//return to the main loop
+				SequenceHandler.SetLoop(0,  false);
+				SequenceHandler.Next();	
+				break;
+			}
+			break;
+			
+		//here we specify the reminder subloop
+		case 5:
+			switch (sequencePosition.get(5)) {
+			case 1:
+				ClickPage.Run("For this part of the experiment you can set reminders if you want", "Next");
+				break;
+			case 2:
+				if (Counterbalance.getFactorLevel("WhichEffortConditionFirst")==ExtraNames.HIGH_EFFORT_FIRST) {
+					ClickPage.Run("Now we are doing the task with high effort reminders", "Next");
+				} else if (Counterbalance.getFactorLevel("WhichEffortConditionFirst")==ExtraNames.LOW_EFFORT_FIRST) {
+					ClickPage.Run("Now we are doing the task with low effort reminders",  "Next");
+				}
+				break;
+			case 3:
+				if (Counterbalance.getFactorLevel("WhichEffortConditionFirst")==ExtraNames.HIGH_EFFORT_FIRST) {
+					ClickPage.Run("Now we are going to switch to low-effort reminders", "Next");
+				} else if (Counterbalance.getFactorLevel("WhichEffortConditionFirst")==ExtraNames.LOW_EFFORT_FIRST) {
+					ClickPage.Run("Now we are going to switch to high-effort reminders",  "Next");
+				}
+				break;
+			case 4:
+				if (Counterbalance.getFactorLevel("WhichEffortConditionFirst")==ExtraNames.HIGH_EFFORT_FIRST) {
+					ClickPage.Run("Now we are doing the task with low effort reminders", "Next");
+				} else if (Counterbalance.getFactorLevel("WhichEffortConditionFirst")==ExtraNames.LOW_EFFORT_FIRST) {
+					ClickPage.Run("Now we are doing the task with high effort reminders",  "Next");
+				}
+				break;
+			case 5:
+				//return to the main loop
+				SequenceHandler.SetLoop(0,  false);
+				SequenceHandler.Next();	
+				break;
+			}
+			break;
+				
 
 		/********************************************/
 		/* no need to edit the code below this line */
